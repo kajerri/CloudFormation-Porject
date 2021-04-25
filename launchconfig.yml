@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion : 2010-09-09
+
+Parameters:
+
+  VPCZoneIdentifier:
+      Description: "List the Subnet Ids of the instances"
+      Type: List<AWS::EC2::Subnet::Id>
+  InstanceSecurityGroup:
+      Description: "List of Security Group IDs"
+      Type: List<AWS::EC2::SecurityGroup::Id>
+
+Resources:
+  LaunchConfiguration: 
+      Type: AWS::AutoScaling::LaunchConfiguration
+      Properties: 
+        KeyName: CF-KEY
+        ImageId: ami-05d72852800cbf29e
+        SecurityGroups: 
+          Ref: "InstanceSecurityGroup"
+        InstanceType: t2.micro
+
+
+  myASG:
+      Type: AWS::AutoScaling::AutoScalingGroup
+      Properties:
+        AutoScalingGroupName: myASG
+        MinSize: "1"
+        MaxSize: "2"
+        DesiredCapacity: "2"
+        Cooldown: 80
+
+        LaunchConfigurationName: !Ref LaunchConfiguration
+        VPCZoneIdentifier:
+          !Ref VPCZoneIdentifier
+      
+        Tags:
+        - Key: Environment
+          Value: Production
+          PropagateAtLaunch: "true"

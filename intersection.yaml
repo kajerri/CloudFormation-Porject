@@ -1,0 +1,32 @@
+
+Resources:
+  VPC:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://cf-homework.s3.amazonaws.com/maincf.yml
+      Parameters:
+        EnvironmentName: !Ref AWS::StackName
+        VpcCIDR: 192.168.0.0/16
+        Subnet1: 192.168.1.0/24
+        Subnet2: 192.168.2.0/24
+        Subnet3: 192.168.3.0/24
+        Subnet4: 192.168.4.0/24
+        Subnet5: 192.168.5.0/24
+        Subnet6: 192.168.6.0/24
+
+  SecurityGroups:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://cf-homework.s3.amazonaws.com/security-groups.yaml
+      Parameters:
+        EnvironmentName: !Ref AWS::StackName
+        VPC: !GetAtt VPC.Outputs.VPC
+
+  myLaunchTemplate:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://cf-homework.s3.amazonaws.com/launchconfig.yml
+      Parameters:
+        
+        VPCZoneIdentifier: !GetAtt VPC.Outputs.SubnetPublic1
+        InstanceSecurityGroup: !GetAtt SecurityGroups.Outputs.ECSHostSecurityGroup
